@@ -8,6 +8,10 @@ RUN apt-get install -y libzip-dev
 RUN apt-get install -y zlib1g-dev
 RUN apt-get install -y iputils-ping
 RUN apt-get install -y mycli
+RUN apt-get install -y mc
+RUN apt-get install -y nano
+RUN apt-get install -y iputils-ping
+RUN apt-get install -y iproute2
 RUN rm -rf /var/lib/apt/lists/*
 RUN docker-php-ext-install zip
 RUN docker-php-ext-install mysqli

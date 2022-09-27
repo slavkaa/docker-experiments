@@ -18,6 +18,7 @@ docker-compose down
 
 docker exec -it c-001-db  bash -l
 docker exec -it db bash -l
+docker exec -it c-001-php-apache bash -l
 docker exec -it docker_db_1 bash -l
 ```
 
