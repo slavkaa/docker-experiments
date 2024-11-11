@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  balancer:
+    image: imkulikov/nginx-sticky:latest
+    container_name: lb_load_balancer
+    ports:
+      - "8080:80"  # Expose Nginx on port 8080
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Custom Nginx config
+      - ./logs/balancer.log:/var/log/nginx/access.log  # Logging for Nginx
+    networks:
+      - lb-app-network
+    depends_on:
+      - app1
+      - app2
+      - app3
+
+  app1:
+    build: ./app
+    container_name: lb_app_node_1
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    networks:
+      - lb-app-network
+    volumes:
+      - ./logs/app1.log:/var/log/app.log  # Logging for app1
+
+  app2:
+    build: ./app
+    container_name: lb_app_node_2
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    networks:
+      - lb-app-network
+    volumes:
+      - ./logs/app2.log:/var/log/app.log  # Logging for app2
+
+  app3:
+    build: ./app
+    container_name: lb_app_node_3
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    networks:
+      - lb-app-network
+    volumes:
+      - ./logs/app3.log:/var/log/app.log  # Logging for app3
+
+networks:
+  lb-app-network:
+    driver: bridge
