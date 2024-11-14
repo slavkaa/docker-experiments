@@ -1,0 +1,16 @@
+services:
+  http10:
+    image: nginx:alpine
+    container_name: http_10_server
+    volumes:
+      - ./http_10/nginx_10.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8081:80"
+
+  http11:
+    image: nginx:alpine
+    container_name: http_11_server
+    volumes:
+      - ./http_11/nginx_11.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8082:80"
