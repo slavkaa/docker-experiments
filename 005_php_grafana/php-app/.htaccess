@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Redirect all requests to index.php
+RewriteCond %{REQUEST_URI} !^/index.php$
+RewriteCond %{REQUEST_URI} !^/metrics$
+RewriteRule ^(.*)$ /index.php [L]
+
+# Make sure /metrics is handled by index.php
+RewriteCond %{REQUEST_URI} ^/metrics$
+RewriteRule ^metrics$ /index.php [L]
