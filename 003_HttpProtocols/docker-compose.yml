@@ -14,3 +14,13 @@ services:
       - ./http_11/nginx_11.conf:/etc/nginx/nginx.conf
     ports:
       - "8082:80"
+
+  http20:
+    image: nginx:alpine
+    container_name: http_20_server
+    volumes:
+      - ./http_20/nginx_20.conf:/etc/nginx/nginx.conf
+      - ./http_20/ssl/key.pem:/etc/nginx/ssl/key.pem
+      - ./http_20/ssl/cert.pem:/etc/nginx/ssl/cert.pem
+    ports:
+      - "8083:443"
