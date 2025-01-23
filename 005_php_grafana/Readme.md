@@ -1,12 +1,26 @@
-# Build
+# About experiment
+Setup chain php-app -> prometheus -> grafana.
+
+At php-app, we have a simple php app that exposes a metric /metrics. Custom metric free_disk_space is added to the app.
+
+Prometheus scrapes the metric from php-app and stores it.
+
+Grafana visualizes the metric from Prometheus at predefined dashboard.
+
+Check grafana/provisioning/* for base configuration.
+Dashboard was created manually and then exported to JSON grafana/dashboards/simple-dashboard.json.
+
+# Tech details
+
+## Build
 
 make build
 
-# Run
+## Run
 
 make up
 
-# Check
+## Check
 
 **PHP App**: http://localhost:8080
 
@@ -15,15 +29,15 @@ make up
 curl "http://localhost:9090/api/v1/query?query=up"
 
 **Grafana**: http://localhost:3000
-Credentials: admin@admin
+Credentials: admin@12345
 
-# Set Up Grafana
+## Set Up Grafana manually
 Grafana will connect to Prometheus to visualize the metrics:
 
 1. Access Grafana at http://localhost:3000.
 Login using the default credentials:
 Username: admin
-Password: admin
+Password: 12345
 
 2. Add Prometheus as a data source:
 Navigate to Connections > Data Sources.
