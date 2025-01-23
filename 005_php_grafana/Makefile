@@ -13,6 +13,9 @@ stop:
 
 down:
 	docker-compose down
+
+restart_php_app:
+	docker-compose restart php-app
 	
 rebuild:
 	$(MAKE) down
