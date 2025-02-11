@@ -1,11 +1,16 @@
 <?php
 namespace App\Controllers;
 
+use App\System\Routing\Route;
+
 class AttributesDemoController
 {
-    public function case1()
+    #[Route('/attributes/case-1-routing')]
+    #[Route(routePath: '/attributes/routing')]
+    #[Route('/attributes/routing/{id}')]
+    #[Route('/attributes/routing/{id}/{index}')]
+    public function case_1_routing($id = null, $index = null): void
     {
-        // @todo: update with examples from https://www.youtube.com/watch?v=I7WJa-he5oM&ab_channel=ProgramWithGio
-        echo 'AttributesDemoController case1';
+        echo "Here I use Route attribute of AttributesDemoController method case1(). ID = $id. INDEX = $index";
     }
 }
