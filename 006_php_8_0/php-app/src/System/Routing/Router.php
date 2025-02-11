@@ -1,15 +1,19 @@
 <?php
 namespace App\System\Routing;
 
-use \App\Controllers\AttributesDemoController as AttributesDemoController;
+use App\System\Routing\Exceptions\InvalidRouteHandler;
+use App\System\Routing\Exceptions\RouteNotFound;
 
 class Router
 {
     private array $routes = [];
     
+    /**
+     * @throws \ReflectionException
+     */
     public function __construct()
     {
-        
+        $this->registerRoutesFromControllers();
     }
     
     public function add(string $path, callable|array $callback): void
@@ -17,11 +21,27 @@ class Router
         $this->routes[trim($path, '/')] = $callback;
     }
     
+    public function run(): void
+    {   
+        try {
+            $requestUri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+            $routingParams = $this->defineRoutingParameters($requestUri);
+            $this->callRouteHandler($routingParams);
+        } catch (RouteNotFound) {
+            http_response_code(404);
+            echo "404 Not Found";
+        } catch (InvalidRouteHandler) {
+            echo "Invalid route handler.";
+            
+        }
+    }
+    
     /**
+     * @todo: capture Reflection Exception and log them.
      * @return void
      * @throws \ReflectionException
      */
-    public function registerRoutesFromControllers(): void
+    private function registerRoutesFromControllers(): void
     {
         $controllers = glob(__DIR__ . '/../../Controllers/*.php');
         
@@ -45,47 +65,73 @@ class Router
         }
     }
     
-    public function run(): void
+    private function defineRoutingParameters(string $requestUri): RoutingParamsInterface
     {
-        $requestUri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+        $routingParams = $this->createRoutingParameters();
         
-        $callback = null;
-        $arguments = [];
-        
+        // Direct match
         if (isset($this->routes[$requestUri])) {
-            $callback = $this->routes[$requestUri];
+            $routingParams = $this->createRoutingParameters(
+                $this->routes[$requestUri],
+                []
+            );
         } else {
-            foreach ($this->routes as $route => $handler) {
-                $pattern = preg_replace('#\{\w+\}#', '([^\/]+)', $route);
+        // Match by pattern
+            foreach ($this->routes as $routePath => $handler) {
+                $pattern = preg_replace('#\{\w+\}#', '([^\/]+)', $routePath);
                 
                 if (preg_match("#^$pattern$#", $requestUri, $arguments)) {
                     array_shift($arguments);
-                    $callback = $handler;
+                    
+                    $routingParams = $this->createRoutingParameters(
+                        $handler,
+                        $arguments
+                    );
                 }
             }
         }
+        
+        return $routingParams;
+    }
+    
+    /**
+     * @throws RouteNotFound
+     * @throws InvalidRouteHandler
+     */
+    private function callRouteHandler(RoutingParamsInterface $routingParams): void
+    {
+        $callback = $routingParams->getCallback();
         
         if (!empty($callback)) {
             // Controller action
             if (is_array($callback) && class_exists($callback[0]) && method_exists($callback[0], $callback[1])) {
                 $controller = new $callback[0]();
-                call_user_func_array([$controller, $callback[1]], $arguments);
+                call_user_func_array([$controller, $callback[1]], $routingParams->getArguments());
                 return;
             }
             
             // Closure or valid callable function
             if (is_callable($callback)) {
-                call_user_func_array($callback, $arguments);
+                call_user_func($callback, $routingParams->getArguments());
                 return;
             }
             
-            http_response_code(500);
-            echo "Invalid route handler.";
-            return;
+            throw new InvalidRouteHandler;
         }
         
-        http_response_code(404);
-        echo "404 Not Found";
+        throw new RouteNotFound();
+    }
+    
+    /**
+     * @todo: Extract to the RoutingFactory
+     * @todo: Make Router class depend on RoutingFactory
+     */
+    private function createRoutingParameters(mixed $callback = null, mixed $arguments = []): RoutingParamsInterface
+    {
+        return new RoutingParams(
+            $callback,
+            $arguments
+        );
     }
 }
 
