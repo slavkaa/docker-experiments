@@ -9,6 +9,6 @@ class IndexController
     #[Route('/')]
     public function index($id = null, $index = null): void
     {
-        require_once Config::getPathToView('index.php');
+        require_once Config::getPathToView(subPath: 'index.php');
     }
 }

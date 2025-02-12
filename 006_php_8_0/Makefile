@@ -8,6 +8,8 @@ build:
 stop:
 	docker-compose down --remove-orphans
 
+restart: stop start
+
 ssh:
 	docker-compose run --rm php-8-0 bash
 	
@@ -16,3 +18,5 @@ composer-i:
 	
 composer-up:
 	docker-compose run php-8-0 composer update
+	
+setup: build composer-i start

@@ -5,6 +5,8 @@ Example of usage for all new PHP 8.0 features.
 # How to run
 
 ```bash
+make setup
+or (if it is not firts time) just
 make start
 ```
 
